@@ -135,6 +135,8 @@ async function callDeepSeek(prompt) {
     },
     body: JSON.stringify({
       model,
+      thinking: { type: "disabled" },
+      response_format: { type: "json_object" },
       temperature: 0.2,
       max_tokens: 12000,
       messages: [
@@ -232,4 +234,3 @@ createServer(async (req, res) => {
   console.log(`Model: ${model}`);
   console.log(`API key loaded: ${process.env.DEEPSEEK_API_KEY ? "yes" : "no"}`);
 });
-
