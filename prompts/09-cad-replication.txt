@@ -1,0 +1,12 @@
+Use case: productivity-visual
+Asset type: 16:9 keynote presentation infographic image
+Primary request: Create a polished visual infographic about AI-assisted CAD drawing replication and parameterized redesign for an electric vehicle showroom layout.
+Scene/backdrop: pure white CAD drafting desk with faint grid, plan drawing sheets, vector-like linework, clean modern presentation design.
+Subject: four side-by-side drawing boards representing stages: original reference plan, normalized grid/layers, redrawn CAD plan, parameter-adjusted variant. Include small electric motorcycles/scooters as simplified top-view blocks, dimension arrows, layer colors, and a small AI robot checking the drawings.
+Style/medium: high-end technical infographic, clean 3D paper boards mixed with CAD line art, soft shadows, precise layout.
+Composition/framing: wide 16:9, four boards left to right, clear progress direction with arrows; no text labels because Quarto will overlay labels.
+Lighting/mood: professional, practical, engineering workflow.
+Color palette: technology blue #2E5BFF, knowledge green #00A67E, dark ink #172033, amber accents.
+Text: no text inside the image; no letters; no pseudo text; no watermark.
+Constraints: no fake written labels, no logos, no watermark. The CAD plans should look like plausible showroom floor plans, not random clutter.
+

@@ -1,0 +1,12 @@
+Use case: scientific-educational
+Asset type: 16:9 keynote presentation infographic image for a RevealJS lecture deck
+Primary request: Create a polished educational keynote cover image about AI-assisted civil engineering drafting and bridge model generation.
+Scene/backdrop: pure white background with subtle engineering blueprint grid, clean modern presentation style.
+Subject: a stylized parametric bridge model formed by nodes and lines, with a CAD drafting sheet, a small AI robot assistant operating design controls, and a 3D bridge model preview.
+Style/medium: high-end editorial 3D illustration mixed with clean infographic composition, not photorealistic, not cartoonish.
+Composition/framing: wide 16:9 slide, strong central bridge visual, generous clean negative space on the left for title overlay in Quarto.
+Lighting/mood: bright, professional, teaching-oriented.
+Color palette: technology blue #2E5BFF, knowledge green #00A67E, dark ink #172033, small amber accents.
+Text: no text inside the image; no labels; no watermark.
+Constraints: no distorted letters, no fake UI text, no logos, no watermark. The image should function as a background/visual asset for a Chinese lecture slide.
+

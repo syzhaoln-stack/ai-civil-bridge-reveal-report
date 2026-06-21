@@ -1,0 +1,12 @@
+Use case: infographic-diagram
+Asset type: 16:9 keynote presentation infographic image for a RevealJS lecture deck
+Primary request: Create a polished visual infographic background showing a lecture-to-image workflow.
+Scene/backdrop: pure white background, subtle blueprint and document texture, modern educational keynote style.
+Subject: a left-to-right pipeline with five visual stages: transcript document, planning board, prompt cards, AI image generation studio, final slide/image pack. Use icons and abstract shapes only.
+Style/medium: clean 3D infographic illustration, rounded cards, soft shadows, precise professional layout.
+Composition/framing: wide 16:9, centered pipeline, enough margin around edges, no text labels because labels will be overlaid in Quarto.
+Lighting/mood: clear, calm, technical teaching mood.
+Color palette: technology blue #2E5BFF, knowledge green #00A67E, dark ink #172033, small amber accents.
+Text: no text inside the image; no letters; no pseudo text; no watermark.
+Constraints: no fake written words, no logos, no watermark, no clutter. Relationship direction must clearly flow left to right with arrows.
+

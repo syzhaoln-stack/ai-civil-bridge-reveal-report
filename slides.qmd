@@ -1,0 +1,194 @@
+---
+lang: zh-CN
+format:
+  revealjs:
+    theme: default
+    css: styles.css
+    title-slide: false
+    slide-number: true
+    chalkboard: false
+    transition: slide
+    width: 1600
+    height: 900
+---
+
+## AI辅助土木工程制图与桥梁模型生成实践分享 {.cover}
+
+<div class="cover-grid">
+<div>
+<p class="eyebrow">lecture-image-pack × Quarto RevealJS 测试</p>
+<h1>从逐字稿到汇报图</h1>
+<p class="lead">把 53 分钟技术分享拆成一组可讲、可展示、可继续生成图片的教学信息图页面。</p>
+</div>
+<div class="cover-visual" aria-label="桥梁模型与制图流程示意">
+<img src="images/00-cover.png" alt="AI辅助土木工程制图与桥梁模型生成主视觉">
+</div>
+</div>
+
+## 01 skill 工作流：原始能力与本次适配
+
+<div class="image-stage">
+<img src="images/01-workflow.png" alt="逐字稿到信息图工作流">
+<div class="caption-row">
+<div>逐字稿</div><div>规划</div><div>Prompt</div><div>Image Gen</div><div>汇报图</div>
+</div>
+</div>
+
+## 02 分享内容地图
+
+<div class="map-layout">
+<div class="center-topic">AI 辅助土木工程实践</div>
+<div class="map-card pos-a"><b>空间认知</b><span>三维模型辅助理解桥梁方向、构件与投影</span></div>
+<div class="map-card pos-b"><b>桥梁建模</b><span>用结构、坐标、参数约束生成可调模型</span></div>
+<div class="map-card pos-c"><b>CAD 复刻</b><span>从原图到规格化、重画、参数调整</span></div>
+<div class="map-card pos-d"><b>技能沉淀</b><span>把拱桥方法整理成 skill，扩展桥型</span></div>
+<div class="map-card pos-e"><b>展示应用</b><span>OBJ、PPT 平滑过渡、视频渲染与培训</span></div>
+</div>
+
+## 03 问题引入：画图为什么让人头疼
+
+<div class="compare">
+<div class="compare-side old">
+<h3>传统重复制图</h3>
+<ul>
+<li>拓扑优化、改图、复核反复循环</li>
+<li>图纸承载空间关系，学生不易直观看懂</li>
+<li>修改参数常常意味着重画大量细节</li>
+</ul>
+</div>
+<div class="switch-arrow">→</div>
+<div class="compare-side new">
+<h3>AI 辅助实践</h3>
+<ul>
+<li>把结构拆成点、线、构件与参数</li>
+<li>用三维可视化降低空间理解门槛</li>
+<li>让参数变化驱动模型与图纸重生成</li>
+</ul>
+</div>
+</div>
+
+## 04 三维模型工具：补上空间认知这一环
+
+<div class="split-visual">
+<div class="model-box">
+<div class="cube">
+<div class="cube-top"></div>
+<div class="cube-left"></div>
+<div class="cube-right"></div>
+</div>
+<div class="views">
+<span>正视</span><span>俯视</span><span>侧视</span>
+</div>
+</div>
+<div class="insight-list">
+<div class="insight"><b>可导入模型</b><span>桥梁 OBJ / STL 进入网页工具后可多角度观察。</span></div>
+<div class="insight"><b>可看三视图</b><span>把抽象图纸转换成可旋转、可投影的空间对象。</span></div>
+<div class="insight"><b>服务教学</b><span>帮助学生建立横向、纵向、支座、构件之间的空间关系。</span></div>
+</div>
+</div>
+
+## 05 参数化桥梁模型：从描述到可调对象
+
+<div class="image-stage image-stage-tall">
+<img src="images/05-parametric-bridge.png" alt="参数化桥梁模型生成">
+<div class="overlay-pills">
+<div>结构描述</div><div>坐标约束</div><div>参数调整</div><div>工程导出</div>
+</div>
+</div>
+
+## 06 提示词精度：把歧义压到最低
+
+<div class="quad">
+<div class="quad-item"><b>结构组成</b><p>桥面、拱肋、吊杆、索塔、支座分别是什么。</p></div>
+<div class="quad-item"><b>位置关系</b><p>谁连接谁，谁在上、下、两侧、跨中。</p></div>
+<div class="quad-item"><b>坐标约束</b><p>用关键点、间距、比例约束模型骨架。</p></div>
+<div class="quad-item"><b>输出格式</b><p>要求 HTML 模型代码、节点坐标和单元信息。</p></div>
+</div>
+<p class="quote">“任何复杂的桥梁，它不过就是点和线，点和线的一个连接。”</p>
+
+## 07 模型到 PPT：OBJ 与平滑过渡
+
+<div class="model-embed-grid">
+<iframe class="bridge-frame" src="models/basket-arch-parametric.html?embed=1&span=60&arch=20&spacing=4" title="参数可调提篮拱桥三维模型"></iframe>
+<div class="model-notes">
+<h3>嵌入式参数模型</h3>
+<div><b>可旋转</b><span>拖动模型查看桥向、横桥向和竖向关系。</span></div>
+<div><b>可调参</b><span>跨度、拱高、横梁间距会实时重建模型。</span></div>
+<div><b>可导出</b><span>支持节点/单元信息和 OBJ 模型导出。</span></div>
+<div><b>可讲解</b><span>RevealJS 页面保留上下文，模型承担现场演示。</span></div>
+</div>
+</div>
+
+## 08 skill 沉淀：从拱桥到桥型族
+
+<div class="network">
+<div class="network-node core">拱桥 prompt</div>
+<div class="network-node n1">结构拆分</div>
+<div class="network-node n2">常规比例</div>
+<div class="network-node n3">可调参数</div>
+<div class="network-node n4">输出契约</div>
+<div class="network-node out1">斜拉桥 skill</div>
+<div class="network-node out2">悬索桥 skill</div>
+<div class="network-node out3">异形桥梁 skill</div>
+<svg class="network-lines" viewBox="0 0 1000 430" preserveAspectRatio="none">
+<path d="M500 90 L250 180 M500 90 L420 210 M500 90 L590 210 M500 90 L750 180" />
+<path d="M420 260 L260 350 M500 270 L500 350 M590 260 L740 350" />
+</svg>
+</div>
+
+## 09 CAD 复刻案例：核心不是照抄，是可变
+
+<div class="image-stage">
+<img src="images/09-cad-replication.png" alt="CAD复刻与参数化调整四阶段">
+<div class="caption-row four">
+<div>原图</div><div>规格化</div><div>重画</div><div>参数调整</div>
+</div>
+</div>
+<p class="callout">项目目标：让甲方看到修改过程，也让后续门店拓展能复用同一套参数逻辑。</p>
+
+## 10 CAD 自动绘图演示
+
+<div class="case-layout">
+<div class="metric"><span>参考图</span><b>斜拉桥</b></div>
+<div class="metric"><span>修改变量</span><b>主跨跨度</b></div>
+<div class="metric"><span>输出结果</span><b>整图重画</b></div>
+<div class="metric"><span>残留问题</span><b>部分拉索细节</b></div>
+</div>
+<div class="case-note">AI 已能自动区分图层并复刻跨度尺寸，人工关注点转向误差核验与工程表达。</div>
+
+## 11 层级展示：从构件到城市
+
+<div class="zoom-stack">
+<div class="zoom-layer z1"><b>局部构件</b><span>节点、索、梁、支座</span></div>
+<div class="zoom-layer z2"><b>整体桥梁</b><span>桥型、受力路径、参数变化</span></div>
+<div class="zoom-layer z3"><b>场景系统</b><span>道路、城市、地球尺度展示</span></div>
+</div>
+<p class="callout">汇报顺序可以按教学逻辑“局部到整体”，也可以按招投标逻辑“场景到细节”。</p>
+
+## 12 应用扩展：模型不只用于看
+
+<div class="app-grid">
+<div><b>有限元计算</b><span>用节点坐标直接计算挠度、弯矩</span></div>
+<div><b>3D 打印</b><span>调整粗细、连接和支撑约束</span></div>
+<div><b>视频渲染</b><span>对桥梁模型做一镜到底展示</span></div>
+<div><b>培训素材</b><span>用短视频快速生成演示片段</span></div>
+</div>
+
+## 13 身份转换：学习目标的变化
+
+<div class="identity">
+<div class="identity-card before"><b>技术小白</b><span>需要长期积累后才能操作复杂任务</span></div>
+<div class="identity-arrow">→</div>
+<div class="identity-card after"><b>领域实践者</b><span>借助 AI、skill 和可视化工具驾驭复杂任务</span></div>
+</div>
+<p class="quote">“学习最重要的不是继续成为你自己，而是完成身份转换。”</p>
+
+## 14 落地清单：把分享变成训练任务
+
+<div class="checklist">
+<div><span>01</span><b>选一个桥型</b><p>先从结构清晰的拱桥或斜拉桥开始。</p></div>
+<div><span>02</span><b>写清点线关系</b><p>列构件、坐标、连接、比例和可调参数。</p></div>
+<div><span>03</span><b>生成可交互模型</b><p>要求输出网页模型并保留参数入口。</p></div>
+<div><span>04</span><b>导出工程信息</b><p>OBJ、节点坐标、单元信息分别服务展示和计算。</p></div>
+<div><span>05</span><b>沉淀为 skill</b><p>把成功提示词和 QA 标准固化为可复用能力。</p></div>
+</div>

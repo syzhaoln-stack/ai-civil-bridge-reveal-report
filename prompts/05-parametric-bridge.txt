@@ -1,0 +1,12 @@
+Use case: scientific-educational
+Asset type: 16:9 keynote presentation infographic image
+Primary request: Create a polished educational visual explaining parametric bridge model generation.
+Scene/backdrop: pure white engineering design workspace with faint coordinate grid and blueprint lines.
+Subject: an elegant parametric arch bridge / cable-stayed bridge hybrid model made of visible nodes, lines, deck, towers, and parameter handles. Include small abstract sliders and coordinate axes, but no text.
+Style/medium: precise 3D technical illustration, clean infographic, keynote style, rounded UI panels, soft shadows.
+Composition/framing: wide 16:9; bridge model dominates center; parameter controls sit around it; no labels because Quarto will overlay labels.
+Lighting/mood: bright, accurate, engineering-focused, optimistic.
+Color palette: technology blue #2E5BFF, knowledge green #00A67E, dark ink #172033, amber highlight for adjustable parameters.
+Text: no text inside the image; no letters; no pseudo text; no watermark.
+Constraints: nodes and line connections must look structurally plausible; avoid impossible tangled cables; avoid fake Chinese/English text; no logos.
+
