@@ -2,7 +2,11 @@
 
 这是一个 Quarto + RevealJS 汇报图测试项目，用于展示 `lecture-image-pack` 的“逐字稿转教学信息图”思路，并嵌入一个可交互的参数化提篮拱桥模型。
 
-在线预览入口发布后使用仓库的 GitHub Pages 地址即可访问；本地打开 `index.html` 或 `slides.html` 也可以预览。
+在线预览：
+
+https://syzhaoln-stack.github.io/ai-civil-bridge-reveal-report/
+
+本地打开 `index.html` 或 `slides.html` 也可以预览。
 
 ## 内容
 
