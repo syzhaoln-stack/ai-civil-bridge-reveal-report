@@ -15,8 +15,33 @@ https://syzhaoln-stack.github.io/ai-civil-bridge-reveal-report/
 - `styles.css`：演示主题与信息图组件
 - `images/`：image gen 生成的汇报图素材
 - `models/basket-arch-parametric.html`：可调参数的 Three.js 提篮拱桥模型
+- `ai-lab.html`：DeepSeek 桥梁模型生成实验室前端
+- `server/deepseek-proxy.mjs`：本地 DeepSeek API 代理，避免把 API Key 暴露到浏览器
 - `prompts/`：本次 image gen 使用的 prompt
 - `PLAN-images.md`：按 `lecture-image-pack` 思路生成的汇报图规划
+
+## DeepSeek 交互生成实验室
+
+GitHub Pages 可以预览 `ai-lab.html` 的交互界面，但不能安全保存 API Key。真正生成模型时，请在本地或部署平台运行代理服务。
+
+本地运行：
+
+```powershell
+$env:DEEPSEEK_API_KEY="你的key"
+.\server\start-deepseek-lab.ps1
+```
+
+然后打开：
+
+```text
+http://localhost:8787/ai-lab.html
+```
+
+默认使用 `deepseek-v4-pro`，也可以这样切换：
+
+```powershell
+.\server\start-deepseek-lab.ps1 -Model deepseek-v4-pro -Port 8787
+```
 
 ## 本地渲染
 

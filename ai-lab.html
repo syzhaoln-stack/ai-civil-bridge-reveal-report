@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeepSeek 桥梁模型生成实验室</title>
+<style>
+  * { box-sizing: border-box; }
+  :root {
+    color-scheme: dark;
+    --bg: #0f141b;
+    --panel: #161d27;
+    --panel-2: #111821;
+    --line: #2c394a;
+    --text: #edf3f8;
+    --muted: #97a7b8;
+    --accent: #62c8d7;
+    --accent-2: #e3b35b;
+    --danger: #ff7b72;
+    --ok: #80d18b;
+  }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter", "Segoe UI", "Microsoft YaHei", sans-serif;
+    letter-spacing: 0;
+  }
+  button, textarea, input {
+    font: inherit;
+  }
+  .app {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: minmax(360px, 0.92fr) minmax(420px, 1.08fr);
+  }
+  .left, .right {
+    min-width: 0;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .left {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    border-right: 1px solid var(--line);
+    background: var(--panel);
+  }
+  header {
+    padding: 22px 24px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  h1 {
+    margin: 0 0 7px;
+    font-size: 22px;
+    line-height: 1.25;
+  }
+  .sub {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .workspace {
+    min-height: 0;
+    display: grid;
+    grid-template-rows: auto 1fr;
+  }
+  .statusbar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 99px;
+    background: var(--muted);
+  }
+  .dot.ok { background: var(--ok); }
+  .dot.err { background: var(--danger); }
+  .prompt-wrap {
+    min-height: 0;
+    padding: 18px 24px;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 10px;
+  }
+  label {
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 0;
+    resize: none;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #0c1118;
+    color: var(--text);
+    padding: 14px;
+    line-height: 1.55;
+    outline: none;
+  }
+  textarea:focus, input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(98, 200, 215, 0.12);
+  }
+  footer {
+    padding: 14px 24px 20px;
+    border-top: 1px solid var(--line);
+    display: grid;
+    gap: 12px;
+  }
+  .endpoint {
+    display: grid;
+    gap: 6px;
+  }
+  input {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #0c1118;
+    color: var(--text);
+    padding: 10px 11px;
+    outline: none;
+  }
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  button {
+    min-height: 38px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0 14px;
+    color: var(--text);
+    background: #202a36;
+    cursor: pointer;
+  }
+  button.primary {
+    border-color: rgba(98, 200, 215, 0.45);
+    background: #163b43;
+  }
+  button:hover { border-color: var(--accent); }
+  button:disabled {
+    cursor: wait;
+    opacity: 0.62;
+  }
+  .right {
+    background: var(--panel-2);
+    display: grid;
+    grid-template-rows: auto 1fr;
+  }
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 0 18px;
+  }
+  .tab {
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    color: var(--muted);
+    min-height: 52px;
+    padding: 0 16px;
+  }
+  .tab.active {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+  }
+  .panes {
+    min-height: 0;
+    position: relative;
+  }
+  .pane {
+    position: absolute;
+    inset: 0;
+    display: none;
+    min-width: 0;
+    min-height: 0;
+  }
+  .pane.active { display: block; }
+  .preview-frame {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #0b1118;
+  }
+  .text-pane, .code-pane {
+    padding: 20px 22px;
+    overflow: auto;
+  }
+  .assistant-card {
+    max-width: 860px;
+    background: #151d28;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 18px;
+    line-height: 1.7;
+    color: #dce6ee;
+    white-space: pre-wrap;
+  }
+  pre {
+    margin: 0;
+    min-height: 100%;
+    overflow: auto;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #0d1117;
+    color: #c9d1d9;
+    font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+    font-size: 14px;
+    line-height: 1.55;
+    white-space: pre;
+  }
+  .empty {
+    color: var(--muted);
+  }
+  .spin {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.18);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    display: inline-block;
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 920px) {
+    .app {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 70vh;
+    }
+    .left, .right { height: auto; }
+    .left { min-height: 72vh; border-right: 0; border-bottom: 1px solid var(--line); }
+  }
+</style>
+</head>
+<body>
+<main class="app">
+  <section class="left" aria-label="提示词输入区">
+    <header>
+      <h1>DeepSeek 桥梁模型生成实验室</h1>
+      <p class="sub">输入结构说明，后端用 DeepSeek v4pro 生成说明与 HTML 代码；前端即时预览模型。API Key 只在本地代理读取。</p>
+    </header>
+
+    <div class="workspace">
+      <div class="statusbar" id="statusbar">
+        <span class="dot" id="status-dot"></span>
+        <span id="status">等待生成</span>
+      </div>
+      <div class="prompt-wrap">
+        <label for="prompt">
+          <span>生成提示词</span>
+          <span id="chars">0 字</span>
+        </label>
+        <textarea id="prompt" spellcheck="false"></textarea>
+      </div>
+    </div>
+
+    <footer>
+      <div class="endpoint">
+        <label for="endpoint">API 代理地址</label>
+        <input id="endpoint" value="/api/deepseek">
+      </div>
+      <div class="actions">
+        <button class="primary" id="generate">生成并预览</button>
+        <button id="copy" disabled>复制代码</button>
+        <button id="download" disabled>下载 HTML</button>
+        <button id="openSaved" disabled>打开已保存模型</button>
+      </div>
+    </footer>
+  </section>
+
+  <section class="right" aria-label="生成结果区">
+    <nav class="tabs" aria-label="结果视图">
+      <button class="tab active" data-pane="preview">预览</button>
+      <button class="tab" data-pane="text">说明</button>
+      <button class="tab" data-pane="code">代码</button>
+    </nav>
+    <div class="panes">
+      <div class="pane active" id="pane-preview">
+        <iframe class="preview-frame" id="preview" title="HTML 模型预览" sandbox="allow-scripts allow-downloads allow-modals"></iframe>
+      </div>
+      <div class="pane text-pane" id="pane-text">
+        <div class="assistant-card empty" id="explanation">生成后会在这里显示模型说明、注意事项与导出信息。</div>
+      </div>
+      <div class="pane code-pane" id="pane-code">
+        <pre id="code">等待生成 HTML 代码...</pre>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+const defaultPrompt = `请给我生成一个提篮拱桥 HTML 三维模型。
+
+- **目的**：我想建造一座拱桥，提篮拱桥。
+- **组成**：包括主梁、主拱、吊杆、横梁。
+  - 传力方式：主梁架在横梁上，横梁左右两端通过吊杆分别拉在左右侧拱肋上。
+  - 主梁：从（0，0，0）到（50，0，0）；主梁在 y 方向宽 10m，在 z 方向高 1m。
+  - 横梁：横梁跨度为 10m，在主梁下方 1m，横梁间距 5m。
+  - 拱：两个拱肋形状均为抛物线，起始点、中点、终点分别为（0，±6，0）；（25，±1，15）；（50，±6，0）。由拱上的三个点确定拱的轴线。
+  - 坐标轴：z 为高度，x 为桥向。
+- **连接**：拱肋对应 x 位置连接在对应主梁相应横梁一侧。
+- **要求**：请帮我制作一个三维可旋转模型。
+- **输出**：html 格式模型代码。
+- **额外要求**
+  - 参数化按钮/拖动条调整结构尺寸（跨度、拱高度、横梁的间距）
+  - 额外增加按钮，输出节点坐标和单元信息，目的是对接后续的有限元计算
+  - 可以导出这个模型的 OBJ 模型吗`;
+
+const promptEl = document.getElementById("prompt");
+const charsEl = document.getElementById("chars");
+const endpointEl = document.getElementById("endpoint");
+const statusEl = document.getElementById("status");
+const dotEl = document.getElementById("status-dot");
+const generateBtn = document.getElementById("generate");
+const copyBtn = document.getElementById("copy");
+const downloadBtn = document.getElementById("download");
+const openSavedBtn = document.getElementById("openSaved");
+const explanationEl = document.getElementById("explanation");
+const codeEl = document.getElementById("code");
+const previewEl = document.getElementById("preview");
+
+let latestHtml = "";
+let latestSavedUrl = "";
+let latestBlobUrl = "";
+
+const isLocalHost = ["localhost", "127.0.0.1", ""].includes(location.hostname);
+endpointEl.value = isLocalHost ? "/api/deepseek" : "http://localhost:8787/api/deepseek";
+promptEl.value = defaultPrompt;
+updateChars();
+
+function updateChars() {
+  charsEl.textContent = `${promptEl.value.length} 字`;
+}
+
+function setStatus(text, kind = "") {
+  statusEl.textContent = text;
+  dotEl.className = `dot ${kind}`;
+}
+
+function setBusy(isBusy) {
+  generateBtn.disabled = isBusy;
+  generateBtn.innerHTML = isBusy ? '<span class="spin"></span> 生成中' : '生成并预览';
+}
+
+function setPane(name) {
+  document.querySelectorAll(".tab").forEach(btn => btn.classList.toggle("active", btn.dataset.pane === name));
+  document.querySelectorAll(".pane").forEach(pane => pane.classList.remove("active"));
+  document.getElementById(`pane-${name}`).classList.add("active");
+}
+
+function showPreview(html) {
+  if (latestBlobUrl) URL.revokeObjectURL(latestBlobUrl);
+  latestBlobUrl = URL.createObjectURL(new Blob([html], { type: "text/html;charset=utf-8" }));
+  previewEl.src = latestBlobUrl;
+}
+
+async function generate() {
+  const prompt = promptEl.value.trim();
+  if (!prompt) {
+    setStatus("提示词不能为空", "err");
+    return;
+  }
+
+  setBusy(true);
+  setStatus("正在调用 DeepSeek v4pro...", "");
+  explanationEl.textContent = "正在生成说明...";
+  explanationEl.classList.add("empty");
+  codeEl.textContent = "正在生成 HTML 代码...";
+  copyBtn.disabled = true;
+  downloadBtn.disabled = true;
+  openSavedBtn.disabled = true;
+
+  try {
+    const response = await fetch(endpointEl.value.trim() || "/api/deepseek", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ prompt, save: true }),
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || `请求失败：${response.status}`);
+
+    latestHtml = payload.html || "";
+    if (!latestHtml) throw new Error("DeepSeek 没有返回可提取的 HTML 代码，请切到“说明”查看原始输出。");
+
+    latestSavedUrl = payload.saved?.html || "";
+    explanationEl.textContent = payload.explanation || "已生成 HTML 模型。";
+    explanationEl.classList.remove("empty");
+    codeEl.textContent = latestHtml;
+    showPreview(latestHtml);
+    copyBtn.disabled = false;
+    downloadBtn.disabled = false;
+    openSavedBtn.disabled = !latestSavedUrl;
+    setPane("preview");
+    setStatus(`生成完成：${payload.model || "deepseek-v4-pro"}`, "ok");
+  } catch (error) {
+    setStatus(error.message, "err");
+    explanationEl.textContent = error.message;
+    explanationEl.classList.remove("empty");
+    setPane("text");
+  } finally {
+    setBusy(false);
+  }
+}
+
+promptEl.addEventListener("input", updateChars);
+generateBtn.addEventListener("click", generate);
+copyBtn.addEventListener("click", async () => {
+  await navigator.clipboard.writeText(latestHtml);
+  setStatus("代码已复制到剪贴板", "ok");
+});
+downloadBtn.addEventListener("click", () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([latestHtml], { type: "text/html;charset=utf-8" }));
+  a.download = "deepseek-basket-arch.html";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+openSavedBtn.addEventListener("click", () => {
+  if (latestSavedUrl) window.open(latestSavedUrl, "_blank");
+});
+document.querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", () => setPane(btn.dataset.pane)));
+setStatus("等待生成", "");
+</script>
+</body>
+</html>
