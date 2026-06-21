@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DeepSeek 桥梁模型生成实验室</title>
+<title>DeepSeek V4 Flash 桥梁模型生成实验室</title>
 <style>
   * { box-sizing: border-box; }
   :root {
@@ -251,8 +251,8 @@
 <main class="app">
   <section class="left" aria-label="提示词输入区">
     <header>
-      <h1>DeepSeek 桥梁模型生成实验室</h1>
-      <p class="sub">输入结构说明，后端用 DeepSeek v4pro 生成说明与 HTML 代码；前端即时预览模型。API Key 只在本地代理读取。</p>
+      <h1>DeepSeek V4 Flash 桥梁模型生成实验室</h1>
+      <p class="sub">输入结构说明，后端用 DeepSeek v4-flash 生成说明与 HTML 代码；前端即时预览模型。API Key 只在本地代理读取。</p>
     </header>
 
     <div class="workspace">
@@ -377,7 +377,7 @@ async function generate() {
   }
 
   setBusy(true);
-  setStatus("正在调用 DeepSeek v4pro...", "");
+  setStatus("正在调用 DeepSeek v4-flash...", "");
   explanationEl.textContent = "正在生成说明...";
   explanationEl.classList.add("empty");
   codeEl.textContent = "正在生成 HTML 代码...";
@@ -406,7 +406,7 @@ async function generate() {
     downloadBtn.disabled = false;
     openSavedBtn.disabled = !latestSavedUrl;
     setPane("preview");
-    setStatus(`生成完成：${payload.model || "deepseek-v4-pro"}`, "ok");
+    setStatus(`生成完成：${payload.model || "deepseek-v4-flash"}`, "ok");
   } catch (error) {
     setStatus(error.message, "err");
     explanationEl.textContent = error.message;

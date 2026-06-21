@@ -1,6 +1,6 @@
 param(
   [int]$Port = 8787,
-  [string]$Model = "deepseek-v4-pro"
+  [string]$Model = "deepseek-v4-flash"
 )
 
 if (-not $env:DEEPSEEK_API_KEY) {
@@ -15,4 +15,3 @@ $env:DEEPSEEK_MODEL = $Model
 Write-Host "启动 DeepSeek 桥梁模型生成实验室..." -ForegroundColor Cyan
 Write-Host "地址：http://localhost:$Port/ai-lab.html" -ForegroundColor Cyan
 node "$PSScriptRoot\deepseek-proxy.mjs"
-

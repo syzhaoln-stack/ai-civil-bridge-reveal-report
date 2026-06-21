@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, "..");
 const port = Number(process.env.PORT || 8787);
 const apiBase = (process.env.DEEPSEEK_API_BASE || "https://api.deepseek.com").replace(/\/$/, "");
-const model = process.env.DEEPSEEK_MODEL || "deepseek-v4-pro";
+const model = process.env.DEEPSEEK_MODEL || "deepseek-v4-flash";
 
 const contentTypes = {
   ".html": "text/html; charset=utf-8",

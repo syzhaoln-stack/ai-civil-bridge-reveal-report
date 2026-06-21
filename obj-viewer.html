@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OBJ 三维模型查看器</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    overflow: hidden;
+    background: #101820;
+    color: #edf4f7;
+    font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+    letter-spacing: 0;
+  }
+  #scene { position: fixed; inset: 0; }
+  .panel {
+    position: fixed;
+    left: 16px;
+    top: 16px;
+    z-index: 5;
+    width: min(360px, calc(100vw - 32px));
+    padding: 16px;
+    border: 1px solid rgba(255,255,255,.16);
+    border-radius: 8px;
+    background: rgba(13, 20, 30, .84);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 16px 40px rgba(0,0,0,.28);
+  }
+  h1 { margin: 0 0 8px; font-size: 19px; line-height: 1.25; }
+  p { margin: 0 0 12px; color: #aebdcc; font-size: 13px; line-height: 1.65; }
+  .row { display: grid; gap: 8px; margin-top: 10px; }
+  input[type=file], button {
+    min-height: 38px;
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 8px;
+    background: rgba(255,255,255,.08);
+    color: #edf4f7;
+    padding: 8px 10px;
+    font: inherit;
+  }
+  button { cursor: pointer; }
+  button:hover { background: rgba(255,255,255,.14); }
+  .actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .stat {
+    padding: 10px;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 8px;
+    background: rgba(255,255,255,.06);
+  }
+  .stat span {
+    display: block;
+    color: #aebdcc;
+    font-size: 11px;
+  }
+  .stat b {
+    display: block;
+    margin-top: 4px;
+    font-size: 18px;
+  }
+  .note {
+    position: fixed;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    z-index: 5;
+    padding: 8px 12px;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 8px;
+    background: rgba(13, 20, 30, .78);
+    color: #aebdcc;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  body.embed .panel { width: 300px; padding: 12px; }
+  body.embed h1 { font-size: 16px; }
+  body.embed p, body.embed .row { display: none; }
+  body.embed .stats { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 760px) {
+    .panel { left: 10px; top: 10px; width: calc(100vw - 20px); }
+    .note { display: none; }
+  }
+</style>
+</head>
+<body>
+<div id="scene"></div>
+<section class="panel">
+  <h1>OBJ 三维模型查看器</h1>
+  <p>书中嵌入时可直接显示导出的 OBJ；学生也可以上传自己的 OBJ，旋转、缩放、检查构件是否完整。</p>
+  <div class="row">
+    <input id="fileInput" type="file" accept=".obj">
+    <div class="actions">
+      <button id="fitBtn">适配视图</button>
+      <button id="spinBtn">自动旋转</button>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat"><span>顶点</span><b id="vCount">0</b></div>
+    <div class="stat"><span>面</span><b id="fCount">0</b></div>
+    <div class="stat"><span>线</span><b id="lCount">0</b></div>
+  </div>
+</section>
+<div class="note">左键旋转，滚轮缩放，右键平移</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+const params = new URLSearchParams(location.search);
+if (params.get("embed") === "1") document.body.classList.add("embed");
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x9fb4c6);
+scene.fog = new THREE.Fog(0x9fb4c6, 90, 220);
+
+const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+document.getElementById("scene").appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+
+scene.add(new THREE.HemisphereLight(0xf3f8ff, 0x586452, 1.3));
+const sun = new THREE.DirectionalLight(0xffffff, 1.3);
+sun.position.set(40, 55, 36);
+sun.castShadow = true;
+scene.add(sun);
+
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(180, 120),
+  new THREE.MeshStandardMaterial({ color: 0x314b42, roughness: .92 })
+);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -1.05;
+ground.receiveShadow = true;
+scene.add(ground);
+
+const modelGroup = new THREE.Group();
+scene.add(modelGroup);
+let autoSpin = true;
+
+function parseIndex(token, vertexCount) {
+  const raw = Number(token.split("/")[0]);
+  return raw < 0 ? vertexCount + raw : raw - 1;
+}
+
+function parseObj(text) {
+  const vertices = [];
+  const faces = [];
+  const lines = [];
+
+  for (const rawLine of text.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith("#")) continue;
+    const parts = line.split(/\s+/);
+    const tag = parts.shift();
+    if (tag === "v" && parts.length >= 3) {
+      vertices.push(new THREE.Vector3(Number(parts[0]), Number(parts[2]), -Number(parts[1])));
+    } else if (tag === "f" && parts.length >= 3) {
+      const idx = parts.map(p => parseIndex(p, vertices.length));
+      for (let i = 1; i < idx.length - 1; i++) faces.push([idx[0], idx[i], idx[i + 1]]);
+    } else if (tag === "l" && parts.length >= 2) {
+      const idx = parts.map(p => parseIndex(p, vertices.length));
+      for (let i = 0; i < idx.length - 1; i++) lines.push([idx[i], idx[i + 1]]);
+    }
+  }
+  return { vertices, faces, lines };
+}
+
+function clearModel() {
+  while (modelGroup.children.length) {
+    const child = modelGroup.children[0];
+    if (child.geometry) child.geometry.dispose();
+    if (child.material) child.material.dispose();
+    modelGroup.remove(child);
+  }
+}
+
+function renderObj(text) {
+  clearModel();
+  const parsed = parseObj(text);
+  const { vertices, faces, lines } = parsed;
+
+  if (faces.length) {
+    const pos = [];
+    for (const face of faces) {
+      for (const idx of face) {
+        const v = vertices[idx];
+        pos.push(v.x, v.y, v.z);
+      }
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    geo.computeVertexNormals();
+    const mat = new THREE.MeshStandardMaterial({ color: 0x71879b, roughness: .58, metalness: .08, side: THREE.DoubleSide });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    modelGroup.add(mesh);
+  }
+
+  if (lines.length) {
+    const pos = [];
+    for (const [a, b] of lines) {
+      const va = vertices[a], vb = vertices[b];
+      pos.push(va.x, va.y, va.z, vb.x, vb.y, vb.z);
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    const mat = new THREE.LineBasicMaterial({ color: 0xf0b24a });
+    modelGroup.add(new THREE.LineSegments(geo, mat));
+  }
+
+  document.getElementById("vCount").textContent = vertices.length;
+  document.getElementById("fCount").textContent = faces.length;
+  document.getElementById("lCount").textContent = lines.length;
+  fitView();
+}
+
+function fitView() {
+  const box = new THREE.Box3().setFromObject(modelGroup);
+  if (box.isEmpty()) {
+    camera.position.set(70, 40, 55);
+    controls.target.set(25, 6, 0);
+    controls.update();
+    return;
+  }
+  const center = box.getCenter(new THREE.Vector3());
+  const size = box.getSize(new THREE.Vector3());
+  const radius = Math.max(size.x, size.y, size.z, 1);
+  controls.target.copy(center);
+  camera.position.set(center.x + radius * 1.15, center.y + radius * .75, center.z + radius * .9);
+  camera.near = Math.max(radius / 1000, .01);
+  camera.far = radius * 12;
+  camera.updateProjectionMatrix();
+  controls.update();
+}
+
+async function loadUrl(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`无法加载 OBJ：${response.status}`);
+  renderObj(await response.text());
+}
+
+document.getElementById("fileInput").addEventListener("change", async event => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  renderObj(await file.text());
+});
+document.getElementById("fitBtn").addEventListener("click", fitView);
+document.getElementById("spinBtn").addEventListener("click", () => {
+  autoSpin = !autoSpin;
+});
+
+addEventListener("resize", () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+const defaultSrc = params.get("src") || "models/sample-basket-arch.obj";
+loadUrl(defaultSrc).catch(err => {
+  console.error(err);
+  fitView();
+});
+
+function animate() {
+  requestAnimationFrame(animate);
+  if (autoSpin) modelGroup.rotation.y += 0.0025;
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>
+

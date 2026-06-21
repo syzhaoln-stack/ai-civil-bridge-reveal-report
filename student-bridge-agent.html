@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学生跟做：从拱桥提示词到桥梁建模 Agent</title>
+<style>
+  * { box-sizing: border-box; }
+  :root {
+    --bg: #f6f8fb;
+    --paper: #ffffff;
+    --ink: #172033;
+    --muted: #667085;
+    --line: #d9e0ea;
+    --blue: #2e5bff;
+    --green: #00a67e;
+    --amber: #d99721;
+    --red: #d84b4b;
+    --cyan: #1aa6b7;
+    --dark: #111827;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+    letter-spacing: 0;
+  }
+  a { color: inherit; }
+  .layout {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    min-height: 100vh;
+  }
+  nav {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    padding: 24px 18px;
+    border-right: 1px solid var(--line);
+    background: #111827;
+    color: white;
+    overflow: auto;
+  }
+  nav h1 {
+    margin: 0 0 16px;
+    font-size: 20px;
+    line-height: 1.3;
+  }
+  nav p {
+    margin: 0 0 18px;
+    color: #bac6d4;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  nav a {
+    display: block;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: #e8eef7;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  nav a:hover { background: rgba(255,255,255,.08); }
+  main {
+    min-width: 0;
+  }
+  .hero {
+    min-height: 78vh;
+    display: grid;
+    align-items: center;
+    padding: 72px clamp(24px, 6vw, 88px);
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+  }
+  .hero-inner {
+    display: grid;
+    grid-template-columns: minmax(0, .9fr) minmax(420px, 1.1fr);
+    gap: 34px;
+    align-items: center;
+  }
+  .eyebrow {
+    margin: 0 0 12px;
+    color: var(--blue);
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 14px;
+  }
+  h2 {
+    margin: 0 0 16px;
+    font-size: clamp(38px, 5vw, 68px);
+    line-height: 1.04;
+    letter-spacing: 0;
+  }
+  .lead {
+    margin: 0 0 28px;
+    max-width: 760px;
+    color: var(--muted);
+    font-size: 20px;
+    line-height: 1.65;
+  }
+  .hero-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 16px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: white;
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 700;
+  }
+  .btn.primary {
+    background: var(--blue);
+    color: white;
+    border-color: var(--blue);
+  }
+  .hero-frame {
+    height: min(640px, 72vh);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #111827;
+    box-shadow: 0 18px 50px rgba(23,32,51,.14);
+  }
+  .hero-frame iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  section {
+    padding: 64px clamp(24px, 6vw, 88px);
+    border-bottom: 1px solid var(--line);
+  }
+  section h3 {
+    margin: 0 0 14px;
+    font-size: 34px;
+    line-height: 1.25;
+  }
+  .section-lead {
+    margin: 0 0 28px;
+    max-width: 920px;
+    color: var(--muted);
+    font-size: 18px;
+    line-height: 1.72;
+  }
+  .path {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+  }
+  .step-card,
+  .task,
+  .note-card,
+  .prompt-card,
+  .agent-card {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--paper);
+    box-shadow: 0 12px 28px rgba(23,32,51,.06);
+  }
+  .step-card {
+    padding: 18px;
+    min-height: 190px;
+  }
+  .step-card span {
+    display: inline-grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    margin-bottom: 12px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: white;
+    font-weight: 800;
+  }
+  .step-card b {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 20px;
+  }
+  .step-card p,
+  .task p,
+  .note-card p,
+  .agent-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+  .task-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+  .task {
+    padding: 22px;
+  }
+  .task h4,
+  .note-card h4,
+  .prompt-card h4,
+  .agent-card h4 {
+    margin: 0 0 10px;
+    font-size: 22px;
+  }
+  .task ul {
+    margin: 12px 0 0 1.1em;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  .two-col {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 22px;
+    align-items: start;
+  }
+  .prompt-card {
+    padding: 0;
+    overflow: hidden;
+  }
+  .prompt-card h4 {
+    padding: 16px 18px;
+    margin: 0;
+    border-bottom: 1px solid var(--line);
+    background: #f9fbff;
+  }
+  pre {
+    margin: 0;
+    padding: 18px;
+    overflow: auto;
+    background: #0d1117;
+    color: #c9d1d9;
+    font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+    font-size: 14px;
+    line-height: 1.58;
+    white-space: pre-wrap;
+  }
+  .lab-frame {
+    width: 100%;
+    height: 680px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #111827;
+    overflow: hidden;
+  }
+  .lab-frame iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .note-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  .note-card,
+  .agent-card {
+    padding: 22px;
+  }
+  .agent-flow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-top: 22px;
+  }
+  .agent-card b {
+    display: block;
+    color: var(--blue);
+    margin-bottom: 8px;
+    font-size: 19px;
+  }
+  .callout {
+    margin-top: 22px;
+    padding: 18px 22px;
+    border-left: 6px solid var(--amber);
+    background: #fff8e8;
+    color: #5d4212;
+    font-weight: 700;
+    line-height: 1.65;
+  }
+  .obj-embed {
+    height: 640px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #111827;
+  }
+  .obj-embed iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .checklist {
+    display: grid;
+    gap: 12px;
+  }
+  .check {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: white;
+  }
+  .box {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--green);
+    border-radius: 5px;
+  }
+  .check b { display: block; margin-bottom: 4px; }
+  .check span {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  @media (max-width: 1080px) {
+    .layout { grid-template-columns: 1fr; }
+    nav { position: static; height: auto; }
+    .hero-inner, .two-col, .task-grid, .note-grid, .agent-flow, .path { grid-template-columns: 1fr; }
+    .hero-frame, .lab-frame, .obj-embed { height: 560px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav>
+    <h1>桥梁建模 Agent 跟做课</h1>
+    <p>从一次拱桥生成练习，走到可复用的工程建模流程。</p>
+    <a href="#route">学习路线</a>
+    <a href="#arch-one">任务一：做一座拱桥</a>
+    <a href="#arch-many">任务二：做不同尺寸</a>
+    <a href="#prompt">任务三：泛化提示词</a>
+    <a href="#bridge-family">任务四：迁移桥型</a>
+    <a href="#fem">任务五：FEM/OBJ</a>
+    <a href="#agent">Agent 与 Skill</a>
+    <a href="#lab">实时实验室</a>
+    <a href="#obj">书中 OBJ 展示</a>
+    <a href="#rubric">验收清单</a>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <div class="hero-inner">
+        <div>
+          <p class="eyebrow">AI 辅助土木工程制图与桥梁模型生成</p>
+          <h2>从拱桥提示词到桥梁建模 Agent</h2>
+          <p class="lead">这不是让学生记住某一段神奇提示词，而是让他们亲手经历：先生成一座桥，再改变尺寸，再抽象成通用任务，最后把节点、单元、OBJ 导出变成工程可复用流程。</p>
+          <div class="hero-actions">
+            <a class="btn primary" href="#lab">进入实时实验</a>
+            <a class="btn" href="ai-lab.html">打开 AI Lab</a>
+            <a class="btn" href="obj-viewer.html">打开 OBJ 查看器</a>
+          </div>
+        </div>
+        <div class="hero-frame">
+          <iframe src="models/basket-arch-parametric.html?embed=1&span=50&arch=15&spacing=5" title="提篮拱桥参数化模型"></iframe>
+        </div>
+      </div>
+    </header>
+
+    <section id="route">
+      <h3>学习路线：五个递进任务</h3>
+      <p class="section-lead">讲义里的核心经验是“任何复杂桥梁，不过就是点和线的连接”。课堂中把这句话拆成五个任务，学生每一步都有可见产物。</p>
+      <div class="path">
+        <div class="step-card"><span>1</span><b>一座拱桥</b><p>从自然语言描述出发，生成可旋转 HTML 模型。</p></div>
+        <div class="step-card"><span>2</span><b>不同尺寸</b><p>把跨度、拱高、横梁间距变成滑块和批量变体。</p></div>
+        <div class="step-card"><span>3</span><b>泛化提示词</b><p>从具体桥变成桥型生成契约：组成、坐标、连接、输出。</p></div>
+        <div class="step-card"><span>4</span><b>桥型迁移</b><p>用同一套结构思路覆盖斜拉桥、悬索桥。</p></div>
+        <div class="step-card"><span>5</span><b>工程导出</b><p>导出 FEM 节点/单元和 OBJ，进入计算、PPT、电子教材。</p></div>
+      </div>
+    </section>
+
+    <section id="arch-one">
+      <h3>任务一：先做一座“说得清”的拱桥</h3>
+      <p class="section-lead">第一次不要追求漂亮，先追求结构关系不乱。学生要能指出主梁、横梁、拱肋、吊杆在哪里，谁连接谁。</p>
+      <div class="task-grid">
+        <div class="task">
+          <h4>课堂操作</h4>
+          <ul>
+            <li>输入“请生成提篮拱桥 HTML 三维模型”。</li>
+            <li>观察错误：吊杆是否悬空，拱肋是否穿过主梁，坐标是否混乱。</li>
+            <li>记录 AI 犯错原因：结构组成、连接关系、坐标约束缺失。</li>
+          </ul>
+        </div>
+        <div class="task">
+          <h4>学生产物</h4>
+          <ul>
+            <li>一份初版 HTML 模型。</li>
+            <li>一张“问题截图 + 错误说明”。</li>
+            <li>一段改进提示词，至少补充组成、连接、坐标三类约束。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="arch-many">
+      <h3>任务二：让拱桥从“一个结果”变成“参数对象”</h3>
+      <p class="section-lead">这一步是身份转换的关键：学生不再只是拿到一个模型，而是开始控制模型生成逻辑。</p>
+      <div class="two-col">
+        <div class="prompt-card">
+          <h4>尺寸变体要求</h4>
+          <pre>在现有提篮拱桥模型中加入参数化控制：
+- 跨度 L：30m 到 100m
+- 拱高 H：8m 到 30m
+- 横梁间距 S：2m 到 10m
+- 滑块变化后实时重建模型
+- 标签同步显示当前参数
+- 保持 x=桥向，y=横桥向，z=高度</pre>
+        </div>
+        <div class="task">
+          <h4>观察重点</h4>
+          <ul>
+            <li>跨度变化后，横梁数量是否自动改变。</li>
+            <li>拱高变化后，吊杆长度是否跟随更新。</li>
+            <li>间距变化后，节点和单元导出是否同步。</li>
+          </ul>
+          <div class="callout">不要只看模型是否“像桥”，还要看参数变化后结构关系是否保持一致。</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="prompt">
+      <h3>任务三：把具体提示词泛化成“桥梁生成契约”</h3>
+      <p class="section-lead">泛化提示词不是写得更长，而是把每次都容易遗漏的约束固定下来，让学生知道以后换桥型也照这个框架说清楚。</p>
+      <div class="two-col">
+        <div class="prompt-card">
+          <h4>泛化提示词骨架</h4>
+          <pre>请生成【桥型】HTML 三维模型。
+
+1. 坐标约定：
+   x=桥向，y=横桥向，z=高度。
+
+2. 结构组成：
+   列出主承重构件、次要构件、桥面/主梁、连接件。
+
+3. 几何控制：
+   给出关键点、跨度、高度、间距、宽度、构件截面。
+
+4. 连接关系：
+   明确谁连接谁，连接发生在哪些 x/y/z 位置。
+
+5. 参数化：
+   至少提供跨度、主高度、构件间距三个滑块。
+
+6. 输出契约：
+   - 可旋转 HTML
+   - FEM 节点坐标和单元信息
+   - OBJ 导出
+   - 中文 UI
+   - 不使用未解释的硬编码尺寸</pre>
+        </div>
+        <div class="task">
+          <h4>泛化训练</h4>
+          <ul>
+            <li>把“提篮拱桥”替换成“斜拉桥”，学生补充塔、斜拉索、锚点。</li>
+            <li>把“提篮拱桥”替换成“悬索桥”，学生补充主缆、吊索、索塔、锚碇。</li>
+            <li>每组提交一份桥型专用提示词和一份错误复盘。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="bridge-family">
+      <h3>任务四：从拱桥迁移到斜拉桥、悬索桥</h3>
+      <p class="section-lead">迁移时讲清楚“相同的框架”和“不同的受力构件”。学生会发现 AI 能生成很多东西，但工程常识要靠提示词和验收清单托住。</p>
+      <div class="note-grid">
+        <div class="note-card"><h4>拱桥</h4><p>主拱承担主要受力，吊杆把横梁/主梁连接到拱肋。关键是拱轴线、吊杆竖向连接、横梁间距。</p></div>
+        <div class="note-card"><h4>斜拉桥</h4><p>索塔与斜拉索控制桥面。关键是塔高、索面、锚点排序，避免拉索交叉或悬空。</p></div>
+        <div class="note-card"><h4>悬索桥</h4><p>主缆、吊索、索塔和锚碇构成体系。关键是主缆垂度、吊索间距、桥面锚点。</p></div>
+      </div>
+    </section>
+
+    <section id="fem">
+      <h3>任务五：进入 FEM、OBJ 与后续工程表达</h3>
+      <p class="section-lead">这一步把“能看”推进到“能用”：FEM 需要节点和单元，PPT/电子教材需要 OBJ，3D 打印还需要实体厚度和可制造性。</p>
+      <div class="task-grid">
+        <div class="task">
+          <h4>FEM 输出</h4>
+          <ul>
+            <li>节点：ID、X、Y、Z、构件标签。</li>
+            <li>单元：ID、类型、节点 i、节点 j、组别。</li>
+            <li>要求节点去重，避免同一连接点重复编号。</li>
+          </ul>
+        </div>
+        <div class="task">
+          <h4>OBJ 输出</h4>
+          <ul>
+            <li>用于 PPT 平滑过渡、电子教材旋转展示、模型检查。</li>
+            <li>坐标使用桥梁模型坐标，不要导出 Three.js 映射坐标。</li>
+            <li>导出后用 OBJ 查看器检查是否缺构件。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="agent">
+      <h3>DeepSeek 不能“复刻 skill”，那应该怎么讲？</h3>
+      <p class="section-lead">建议讲成“搭建一个桥梁建模 Agent”。DeepSeek 是生成模型，Agent 是组织工作流的执行者，Skill 是这个 Agent 的说明书和工具箱。</p>
+      <div class="agent-flow">
+        <div class="agent-card"><b>模型</b><p>DeepSeek V4 Flash 负责根据提示词生成文字和代码。</p></div>
+        <div class="agent-card"><b>代理运行时</b><p>本地 Node 代理或云函数负责保管 API Key、限流、保存结果。</p></div>
+        <div class="agent-card"><b>工具</b><p>Three.js、OBJ 查看器、FEM 导出脚本负责把生成结果变成可检查产物。</p></div>
+        <div class="agent-card"><b>Skill</b><p>把桥型公式、坐标约定、验收清单写成可复用工作说明。</p></div>
+      </div>
+      <div class="callout">讲授重点：不要说“DeepSeek 学会了这个 skill”，而要说“我们用 Agent 外壳把 DeepSeek 的一次性生成，变成可重复、可检查、可扩展的任务流程”。</div>
+    </section>
+
+    <section id="lab">
+      <h3>实时实验室：学生现场生成与预览</h3>
+      <p class="section-lead">课堂上推荐使用“教师限额代理”或“学生本地代理”，不要把共享 API Key 写进前端页面。</p>
+      <div class="lab-frame">
+        <iframe src="ai-lab.html" title="DeepSeek 桥梁模型生成实验室"></iframe>
+      </div>
+    </section>
+
+    <section id="obj">
+      <h3>书中 OBJ 展示：旋转、放大、检查模型</h3>
+      <p class="section-lead">电子教材里可以直接嵌入 OBJ 查看器。学生导出 OBJ 后，既能放进 PPT，也能在书中旋转查看，形成“生成结果即教材素材”的闭环。</p>
+      <div class="obj-embed">
+        <iframe src="obj-viewer.html?embed=1&src=models/sample-basket-arch.obj" title="OBJ 三维模型查看器"></iframe>
+      </div>
+    </section>
+
+    <section id="rubric">
+      <h3>学生提交与验收清单</h3>
+      <p class="section-lead">每组最后不只交一个模型，而是交“生成过程 + 提示词 + 可运行代码 + 工程导出 + 复盘”。</p>
+      <div class="checklist">
+        <div class="check"><span class="box"></span><div><b>一座基础拱桥</b><span>构件完整，坐标方向正确，能旋转查看。</span></div></div>
+        <div class="check"><span class="box"></span><div><b>三个尺寸变体</b><span>跨度、拱高、间距变化后结构关系不崩。</span></div></div>
+        <div class="check"><span class="box"></span><div><b>一份泛化提示词</b><span>能迁移到斜拉桥或悬索桥。</span></div></div>
+        <div class="check"><span class="box"></span><div><b>FEM 节点/单元导出</b><span>节点去重，单元分组清晰。</span></div></div>
+        <div class="check"><span class="box"></span><div><b>OBJ 展示</b><span>导出 OBJ 并在查看器中旋转、缩放、检查。</span></div></div>
+        <div class="check"><span class="box"></span><div><b>Skill 草案</b><span>把桥型约束、生成步骤、验收标准写成 Agent 可复用说明。</span></div></div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>
+
