@@ -34,6 +34,13 @@ https://syzhaoln-stack.github.io/ai-civil-bridge-reveal-report/obj-viewer.html
 
 GitHub Pages 可以预览 `ai-lab.html` 的交互界面，但不能安全保存 API Key。真正生成模型时，请在本地或部署平台运行代理服务。
 
+先诊断 API Key、模型名和 JSON mode 是否可用：
+
+```powershell
+$env:DEEPSEEK_API_KEY="你的key"
+node .\server\test-deepseek.mjs
+```
+
 本地运行：
 
 ```powershell
